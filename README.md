@@ -24,6 +24,20 @@ brew tap PraveenPrabhuT/homebrew-tap
 brew install grafana-connect
 ```
 
+### Via Nix (Flakes)
+If you are a Nix user, you can run or install directly from the flake:
+
+```bash
+# Run once without installing
+nix run github:PraveenPrabhuT/grafana-connect
+
+# Install into your profile
+nix profile install github:PraveenPrabhuT/grafana-connect
+
+# Enter a dev shell with dependencies
+nix develop github:PraveenPrabhuT/grafana-connect
+```
+
 ### Manual Install
 Download the binary for your OS from the [Releases](https://github.com/PraveenPrabhuT/grafana-connect/releases) page and add it to your path.
 
