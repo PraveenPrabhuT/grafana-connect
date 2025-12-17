@@ -39,7 +39,8 @@ func Open(env config.Environment, globalCfg *config.Config, namespace string) {
 			clipboard.Write(clipboard.FmtText, []byte(env.Password))
 			fmt.Println("📋 Password copied to clipboard!")
 		} else {
-			// Fail silently or log debug
+			// log debug
+			fmt.Printf("⚠️  Clipboard not available: %v\n", err)
 		}
 	}
 

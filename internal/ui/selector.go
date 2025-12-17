@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"github.com/ktr0731/go-fuzzyfinder"
 )
 
@@ -12,7 +11,7 @@ func SelectString(label string, items []string) (string, error) {
 		func(i int) string {
 			return items[i]
 		},
-		fuzzyfinder.WithPromptString(label + " > "),
+		fuzzyfinder.WithPromptString(label+" > "),
 	)
 	if err != nil {
 		return "", err
