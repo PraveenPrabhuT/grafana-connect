@@ -1,31 +1,35 @@
 package config
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/spf13/viper"
 )
 
 type Environment struct {
-	Name          string `mapstructure:"name"`
-	ContextMatch  string `mapstructure:"context_match"`
-	BaseURL       string `mapstructure:"base_url"`
-	PrometheusUID string `mapstructure:"prometheus_uid"`
-	Username      string `mapstructure:"username"`
-	Password      string `mapstructure:"password"`
+	// Added `yaml:"..."` tags to ensure correct saving format
+	Name          string `mapstructure:"name"           yaml:"name"`
+	ContextMatch  string `mapstructure:"context_match"  yaml:"context_match"`
+	BaseURL       string `mapstructure:"base_url"       yaml:"base_url"`
+	PrometheusUID string `mapstructure:"prometheus_uid" yaml:"prometheus_uid"`
+	Username      string `mapstructure:"username"       yaml:"username"`
+	Password      string `mapstructure:"password"       yaml:"password"`
 }
 
 type Config struct {
-	DefaultDashboard     string        `mapstructure:"default_dashboard"`
-	DefaultPrometheusUID string        `mapstructure:"default_prometheus_uid"`
-	Environments         []Environment `mapstructure:"environments"`
+	DefaultDashboard     string        `mapstructure:"default_dashboard"      yaml:"default_dashboard"`
+	DefaultPrometheusUID string        `mapstructure:"default_prometheus_uid" yaml:"default_prometheus_uid"`
+	Environments         []Environment `mapstructure:"environments"           yaml:"environments"`
 }
 
 func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("$HOME/.config/grafana-connect/")
 
-	// Hardcoded Defaults
-	viper.SetDefault("default_dashboard", "k8s-pod-resources-clean/kubernetes-pod-resource-dashboard-v3")
+	home, _ := os.UserHomeDir()
+	viper.AddConfigPath(filepath.Join(home, ".config", "grafana-connect"))
+	viper.AddConfigPath(".")
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
