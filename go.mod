@@ -3,11 +3,13 @@ module github.com/PraveenPrabhuT/grafana-connect
 go 1.25.5
 
 require (
+	github.com/atotto/clipboard v0.1.4
 	github.com/ktr0731/go-fuzzyfinder v0.9.0
+	github.com/manifoldco/promptui v0.9.0
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.19.0
-	golang.design/x/clipboard v0.7.0
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.31.0
 	k8s.io/client-go v0.31.0
 )
@@ -39,7 +41,6 @@ require (
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -60,9 +61,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/exp/shiny v0.0.0-20251209150349-8475f28825e9 // indirect
-	golang.org/x/image v0.34.0 // indirect
-	golang.org/x/mobile v0.0.0-20251126181937-5c265dc024c4 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
@@ -73,7 +71,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.31.0 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect

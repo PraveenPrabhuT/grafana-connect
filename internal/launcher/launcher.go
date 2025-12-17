@@ -5,8 +5,8 @@ import (
 	"net/url"
 
 	"github.com/PraveenPrabhuT/grafana-connect/internal/config"
+	"github.com/atotto/clipboard"
 	"github.com/pkg/browser"
-	"golang.design/x/clipboard"
 )
 
 // Open prepares the environment and launches the browser
@@ -35,12 +35,11 @@ func Open(env config.Environment, globalCfg *config.Config, namespace string) {
 	// 3. Handle Clipboard
 	if env.Password != "" {
 		// Init returns an error if the system clipboard is missing (e.g. headless linux)
-		if err := clipboard.Init(); err == nil {
-			clipboard.Write(clipboard.FmtText, []byte(env.Password))
+		if err := clipboard.WriteAll(env.Password); err == nil {
 			fmt.Println("📋 Password copied to clipboard!")
 		} else {
-			// log debug
-			fmt.Printf("⚠️  Clipboard not available: %v\n", err)
+			// On Linux, this might fail if xclip/xsel isn't installed. Warn the user.
+			fmt.Printf("⚠️  Clipboard error: %v (Do you have xclip/xsel installed?)\n", err)
 		}
 	}
 
