@@ -1,0 +1,73 @@
+version: 2 # Using GoReleaser v2 schema
+
+project_name: grafana-connect
+
+before:
+  hooks:
+    - go mod tidy
+    # 1. Build a temporary binary for generating completions
+    - go build -o /tmp/grafana-connect-gen .
+    # 2. Generate the completions
+    - sh -c '/tmp/grafana-connect-gen completion bash > completions.bash'
+    - sh -c '/tmp/grafana-connect-gen completion zsh > completions.zsh'
+    - sh -c '/tmp/grafana-connect-gen completion fish > completions.fish'
+
+# 1. BUILD CONFIGURATION
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin # macOS
+      - linux # Linux
+    goarch:
+      - amd64 # Intel
+      - arm64 # Apple Silicon / ARM
+
+    # Strip debug symbols (-s -w) and inject metadata
+    ldflags:
+      - -s -w
+      - -X github.com/PraveenPrabhuT/grafana-connect/cmd.version={{.Version}}
+      - -X github.com/PraveenPrabhuT/grafana-connect/cmd.commit={{.Commit}}
+      - -X github.com/PraveenPrabhuT/grafana-connect/cmd.date={{.Date}}
+
+# 2. ARCHIVE CONFIGURATION
+archives:
+  - format: tar.gz
+    # Standard naming: grafana-connect_1.0.0_Darwin_arm64.tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    files:
+      - README.md
+      - completions.bash
+      - completions.zsh
+      - completions.fish
+
+# 3. CHECKSUMS
+checksum:
+  name_template: "checksums.txt"
+
+# 4. HOMEBREW TAP CONFIGURATION
+brews:
+  - name: grafana-connect
+
+    repository:
+      owner: PraveenPrabhuT
+      name: homebrew-tap
+      token: "{{ .Env.GORELEASER_TOKEN }}"
+
+    directory: Formula
+    description: "Context-aware Grafana dashboard launcher for Kubernetes"
+    homepage: "https://github.com/PraveenPrabhuT/grafana-connect"
+    license: "MIT"
+
+    # Install instructions for Homebrew
+    install: |
+      bin.install "grafana-connect"
+
+      # Install Shell Completions
+      bash_completion.install "completions.bash" => "grafana-connect"
+      zsh_completion.install "completions.zsh" => "_grafana-connect"
+      fish_completion.install "completions.fish" => "grafana-connect.fish"
+
+    test: |
+      system "#{bin}/grafana-connect version"
