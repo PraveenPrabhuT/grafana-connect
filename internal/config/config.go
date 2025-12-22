@@ -8,19 +8,19 @@ import (
 )
 
 type Environment struct {
-	// Added `yaml:"..."` tags to ensure correct saving format
 	Name          string `mapstructure:"name"           yaml:"name"`
+	Alias         string `mapstructure:"alias"          yaml:"alias"` // Added for next feature
 	ContextMatch  string `mapstructure:"context_match"  yaml:"context_match"`
 	BaseURL       string `mapstructure:"base_url"       yaml:"base_url"`
+	Dashboard     string `mapstructure:"dashboard"      yaml:"dashboard"` // Moved here
 	PrometheusUID string `mapstructure:"prometheus_uid" yaml:"prometheus_uid"`
 	Username      string `mapstructure:"username"       yaml:"username"`
 	Password      string `mapstructure:"password"       yaml:"password"`
 }
 
 type Config struct {
-	DefaultDashboard     string        `mapstructure:"default_dashboard"      yaml:"default_dashboard"`
-	DefaultPrometheusUID string        `mapstructure:"default_prometheus_uid" yaml:"default_prometheus_uid"`
-	Environments         []Environment `mapstructure:"environments"           yaml:"environments"`
+	// Global defaults are gone. Only the list remains.
+	Environments []Environment `mapstructure:"environments" yaml:"environments"`
 }
 
 func LoadConfig() (*Config, error) {

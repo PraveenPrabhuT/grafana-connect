@@ -125,7 +125,7 @@ var rootCmd = &cobra.Command{
 
 		// --- EXECUTION ---
 		// We pass the resolved Env and Namespace to the launcher
-		launcher.Open(*targetEnv, cfg, targetNamespace)
+		launcher.Open(*targetEnv, targetNamespace)
 	},
 }
 

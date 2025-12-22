@@ -62,7 +62,7 @@ var listCmd = &cobra.Command{
 
 		// Launch with 'default' namespace since we are in manual mode
 		selectedEnv := cfg.Environments[idx]
-		launcher.Open(selectedEnv, cfg, "default")
+		launcher.Open(selectedEnv, "default")
 	},
 }
 

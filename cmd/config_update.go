@@ -30,29 +30,11 @@ var configUpdateCmd = &cobra.Command{
 			if err == nil {
 				_ = yaml.Unmarshal(data, &cfg)
 			}
-		} else {
-			fmt.Println("✨ No config found. Creating a new one.")
 		}
 
-		// 3. Global Settings Wizard
-		fmt.Println("\n--- ⚙️  Global Defaults ---")
+		fmt.Println("🧙 Starting setup wizard...")
+		// Removed Global Defaults Section
 
-		pDash := promptui.Prompt{
-			Label:   "Default Dashboard Slug",
-			Default: cfg.DefaultDashboard,
-		}
-		if cfg.DefaultDashboard == "" {
-			pDash.Default = "k8s-pod-resources-clean/kubernetes-pod-resource-dashboard-v3"
-		}
-		cfg.DefaultDashboard, _ = pDash.Run()
-
-		pProm := promptui.Prompt{
-			Label:   "Default Prometheus UID",
-			Default: cfg.DefaultPrometheusUID,
-		}
-		cfg.DefaultPrometheusUID, _ = pProm.Run()
-
-		// 4. Environments Wizard loop
 		for {
 			prompt := promptui.Prompt{
 				Label:     "Add/Update an Environment?",
@@ -82,22 +64,39 @@ var configUpdateCmd = &cobra.Command{
 			}
 
 			// Pre-fill defaults
-			defName, defCtx, defUID, defUser := "", "", "", ""
+			defName, defAlias, defCtx, defUID, defUser, defDash := "", "", "", "", "", ""
 			if existingEnv != nil {
 				defName = existingEnv.Name
+				defAlias = existingEnv.Alias
 				defCtx = existingEnv.ContextMatch
 				defUID = existingEnv.PrometheusUID
 				defUser = existingEnv.Username
+				defDash = existingEnv.Dashboard
 			}
 
-			pName := promptui.Prompt{Label: "Name (e.g., prod)", Default: defName}
+			// --- THE PROMPTS ---
+			pName := promptui.Prompt{Label: "Name (e.g. ackoprod)", Default: defName}
 			name, _ := pName.Run()
+
+			// NEW: Alias
+			pAlias := promptui.Prompt{Label: "Alias (Shortcode e.g. prod)", Default: defAlias}
+			alias, _ := pAlias.Run()
 
 			pCtx := promptui.Prompt{Label: "Context Regex", Default: defCtx}
 			if defCtx == "" {
 				pCtx.Default = ".*" + name + ".*"
 			}
 			ctxMatch, _ := pCtx.Run()
+
+			// NEW: Dashboard Path per env
+			pDash := promptui.Prompt{
+				Label:   "Dashboard Path (Slug)",
+				Default: defDash,
+			}
+			if defDash == "" {
+				pDash.Default = "k8s-pod-resources-clean/kubernetes-pod-resource-dashboard-v3"
+			}
+			dashboard, _ := pDash.Run()
 
 			pUID := promptui.Prompt{Label: "Prometheus UID", Default: defUID}
 			uid, _ := pUID.Run()
@@ -113,8 +112,8 @@ var configUpdateCmd = &cobra.Command{
 			}
 
 			newEnv := config.Environment{
-				Name: name, ContextMatch: ctxMatch, BaseURL: baseURL,
-				PrometheusUID: uid, Username: user, Password: pass,
+				Name: name, Alias: alias, ContextMatch: ctxMatch, BaseURL: baseURL,
+				Dashboard: dashboard, PrometheusUID: uid, Username: user, Password: pass,
 			}
 
 			if idx >= 0 {
