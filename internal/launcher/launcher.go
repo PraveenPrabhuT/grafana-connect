@@ -19,18 +19,16 @@ func Open(env config.Environment, namespace string) {
 	params.Add("var-namespace", namespace)
 	params.Add("var-deployment", "All")
 	params.Add("var-pod", "All")
-	params.Add("var-container", "All")
 
-	// Fallback for dashboard if user forgot to set it in the new config structure
-	dashSlug := env.Dashboard
-	if dashSlug == "" {
-		// Reasonable safety net or panic? Let's warn.
-		fmt.Println("⚠️  Warning: No dashboard path set for this environment.")
+	// Safety check for dashboard path
+	dashPath := env.Dashboard
+	if dashPath == "" {
+		dashPath = "k8s-pod-resources/kubernetes-pod-resource-dashboard" // Hard fallback just in case
 	}
 
 	finalURL := fmt.Sprintf("%s/d/%s?%s",
 		env.BaseURL,
-		dashSlug,
+		dashPath,
 		params.Encode(),
 	)
 

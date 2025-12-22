@@ -39,3 +39,13 @@ func LoadConfig() (*Config, error) {
 	err := viper.Unmarshal(&cfg)
 	return &cfg, err
 }
+
+// Helper to find env by Alias
+func (c *Config) FindByAlias(alias string) *Environment {
+	for _, env := range c.Environments {
+		if env.Alias == alias {
+			return &env
+		}
+	}
+	return nil
+}
