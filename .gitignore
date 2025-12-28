@@ -1,3 +1,4 @@
 grafana-connect
 .env
 result
+config.yaml

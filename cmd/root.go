@@ -119,10 +119,79 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	// 1. Define Flags
 	rootCmd.Flags().BoolVarP(&flagInteractiveNs, "interactive-ns", "i", false, "Pick namespace interactively")
 	rootCmd.Flags().BoolVarP(&flagInteractiveCtx, "interactive-full", "I", false, "Pick environment and namespace interactively")
 	rootCmd.Flags().StringVarP(&flagAlias, "env", "e", "", "Select environment by alias (e.g. 'prod')")
 	rootCmd.Flags().StringVarP(&flagNamespace, "namespace", "n", "", "Override namespace")
+
+	// 2. Register Autocomplete for --env / -e
+	// FIX: Clean list. Only show Alias if it exists. Show Name only if no Alias exists.
+	_ = rootCmd.RegisterFlagCompletionFunc("env", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+
+		var suggestions []string
+		for _, env := range cfg.Environments {
+			if env.Alias != "" {
+				// Format: "alias\tDescription"
+				suggestions = append(suggestions, fmt.Sprintf("%s\t%s", env.Alias, env.Name))
+			} else {
+				suggestions = append(suggestions, fmt.Sprintf("%s\tEnvironment", env.Name))
+			}
+		}
+		return suggestions, cobra.ShellCompDirectiveNoFileComp
+	})
+
+	// 3. Register Autocomplete for --namespace / -n
+	// FIX: Strict Logic. Only fallback to current context if -e is NOT present.
+	_ = rootCmd.RegisterFlagCompletionFunc("namespace", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		// A. Check for --env flag
+		envFlag, _ := cmd.Flags().GetString("env")
+
+		var contextToQuery string
+
+		if envFlag != "" {
+			// === PATH 1: User specified an Alias ===
+			cfg, err := config.LoadConfig()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+
+			targetEnv := cfg.FindByAlias(envFlag)
+			if targetEnv == nil {
+				// User typed an alias that doesn't exist. We can't autocomplete.
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+
+			// Find the actual Kube Context name from the regex
+			ctx, err := kube.FindContextByRegex(targetEnv.ContextMatch)
+			if err != nil {
+				// Valid Alias, but regex didn't match any local kubeconfig context.
+				// We cannot autocomplete namespaces if we can't find the cluster.
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			contextToQuery = ctx
+
+		} else {
+			// === PATH 2: No Alias, use Current Context ===
+			state, err := kube.GetCurrentState()
+			if err != nil {
+				return nil, cobra.ShellCompDirectiveError
+			}
+			contextToQuery = state.Context
+		}
+
+		// B. Fetch Namespaces from the determined context
+		namespaces, err := kube.GetNamespaces(contextToQuery)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+
+		return namespaces, cobra.ShellCompDirectiveNoFileComp
+	})
 }
 
 func Execute() {
